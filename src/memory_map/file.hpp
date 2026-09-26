@@ -11,7 +11,9 @@ class MemoryMappedFile {
     ~MemoryMappedFile();
     std::size_t size() const;
 
-    template <typename T> const T *get(std::size_t offset) const {
+    template <typename T>
+        requires(alignof(T) == 1)
+    const T *get(std::size_t offset) const {
         return std::start_lifetime_as<T>(
             static_cast<const std::byte *>(this->memory) + offset);
     }

@@ -11,9 +11,6 @@ struct [[gnu::packed]] FileList {
     // std::byte compressedData[/* .compressedSize */];
 };
 
-// Needed to for use with std::start_lifetime_as + open + mmap
-static_assert(alignof(Pak::FileList) == 1);
-
 } // namespace Pak
 
 #include <format>

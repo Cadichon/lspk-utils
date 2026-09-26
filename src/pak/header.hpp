@@ -37,9 +37,6 @@ struct [[gnu::packed]] Header {
     static constexpr char LSPKMagic[] = {'L', 'S', 'P', 'K'};
 };
 
-// Needed to for use with std::start_lifetime_as + open + mmap
-static_assert(alignof(Pak::Header) == 1);
-
 } // namespace Pak
 
 #include <format>

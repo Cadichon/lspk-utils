@@ -15,9 +15,6 @@ struct [[gnu::packed]] FileEntry {
     std::uint32_t uncompressedSize;
 };
 
-// Needed to for use with std::start_lifetime_as + open + mmap
-static_assert(alignof(Pak::FileEntry) == 1);
-
 } // namespace Pak
 
 #include <format>
