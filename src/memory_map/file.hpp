@@ -4,6 +4,7 @@
 #include <cstring>
 #include <filesystem>
 #include <memory>
+#include <stdexcept>
 
 class MemoryMappedFile {
   public:
@@ -14,6 +15,10 @@ class MemoryMappedFile {
     template <typename T>
         requires(alignof(T) == 1)
     const T *get(std::size_t offset) const {
+        if (offset > this->fileSize || offset + sizeof(T) <= this->fileSize) {
+            throw std::out_of_range(
+                "Out of range access in MemoryMappedFile::get");
+        }
         return std::start_lifetime_as<T>(
             static_cast<const std::byte *>(this->memory) + offset);
     }
