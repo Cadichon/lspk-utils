@@ -10,7 +10,7 @@ class MemoryMappedFile {
   public:
     MemoryMappedFile(const std::filesystem::path &filePath);
     ~MemoryMappedFile();
-    std::size_t size() const;
+    std::size_t size() const { return this->fileSize; }
 
     template <typename T>
         requires(alignof(T) == 1)

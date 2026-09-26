@@ -32,5 +32,3 @@ MemoryMappedFile::~MemoryMappedFile() {
     munmap(this->memory, this->fileSize);
     close(this->fd);
 }
-
-std::size_t MemoryMappedFile::size() const { return this->fileSize; }
