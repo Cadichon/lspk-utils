@@ -1,22 +1,46 @@
 #include <filesystem>
-#include <fstream>
-#include <memory>
 #include <print>
 
+#include <lz4.h>
+#include <vector>
+
+#include "memory_map/file.hpp"
+#include "pak/file_entry.hpp"
+#include "pak/file_list.hpp"
 #include "pak/header.hpp"
 
 void tryPrintHeader(const std::filesystem::path &filePath) {
-    std::ifstream file{filePath};
+    MemoryMappedFile file{filePath};
 
-    if (std::filesystem::file_size(filePath) >= sizeof(Pak::Header)) {
-        alignas(Pak::Header) char buffer[sizeof(Pak::Header)];
-        Pak::Header *header;
+    if (file.size() < sizeof(Pak::Header))
+        return;
 
-        file.read(buffer, sizeof(Pak::Header));
-        header = std::start_lifetime_as<Pak::Header>(buffer);
+    const Pak::Header *header = file.get<Pak::Header>(0);
 
-        std::println("{}", filePath.string());
-        std::println("{}", *header);
+    if (!Pak::Header::isValid(*header)) {
+        return;
+    }
+    std::println("{}", filePath.string());
+    std::println("{}", *header);
+    const Pak::FileList *fileList =
+        file.get<Pak::FileList>(header->fileListOffset);
+    std::println("{}", *fileList);
+    std::vector<Pak::FileEntry> fileEntries;
+
+    fileEntries.resize(fileList->numFilesEntry);
+
+    // After FileList, there is a LZ4 compressed array of FileEntry of size
+    // FileList::numFilesEntry
+    int ret = LZ4_decompress_safe(
+        static_cast<const char *>(
+            file.getRaw(header->fileListOffset + sizeof(Pak::FileList))),
+        reinterpret_cast<char *>(fileEntries.data()), fileList->compressedSize,
+        sizeof(Pak::FileEntry) * fileList->numFilesEntry);
+    if (ret != (sizeof(Pak::FileEntry) * fileList->numFilesEntry)) {
+        std::println("Not good");
+    }
+    for (const auto &fileEntry : fileEntries) {
+        std::println("{}", fileEntry);
     }
 }
 
