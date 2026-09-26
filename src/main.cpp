@@ -1,8 +1,8 @@
 #include <filesystem>
 #include <print>
+#include <vector>
 
 #include <lz4.h>
-#include <vector>
 
 #include "memory_map/file.hpp"
 #include "pak/file_entry.hpp"
