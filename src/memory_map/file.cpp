@@ -16,12 +16,14 @@ MemoryMappedFile::MemoryMappedFile(const std::filesystem::path &filePath) {
     }
     struct stat st;
     if (fstat(this->fd, &st) != 0) {
+        close(this->fd);
         throw std::system_error();
     }
     this->fileSize = st.st_size;
     this->memory = mmap(nullptr, this->fileSize, PROT_READ,
                         MAP_FILE | MAP_PRIVATE, this->fd, 0);
     if (this->memory == MAP_FAILED) {
+        close(this->fd);
         throw std::system_error();
     }
 }
