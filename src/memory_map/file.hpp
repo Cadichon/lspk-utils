@@ -6,10 +6,19 @@
 #include <memory>
 #include <stdexcept>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 class MemoryMappedFile {
   public:
     MemoryMappedFile(const std::filesystem::path &filePath);
     ~MemoryMappedFile();
+    MemoryMappedFile(const MemoryMappedFile &) = delete;
+    MemoryMappedFile &operator=(const MemoryMappedFile &) = delete;
+    MemoryMappedFile(MemoryMappedFile &&other) noexcept = delete;
+    MemoryMappedFile &operator=(MemoryMappedFile &&other) noexcept = delete;
+
     std::size_t size() const { return this->fileSize; }
 
     template <typename T>
@@ -28,7 +37,12 @@ class MemoryMappedFile {
     }
 
   private:
+#ifdef _WIN32
+    HANDLE fileHandle = INVALID_HANDLE_VALUE;
+    HANDLE mappingHandle = nullptr;
+#else
     int fd;
+#endif
     std::size_t fileSize;
     void *memory;
 };
