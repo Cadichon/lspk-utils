@@ -44,7 +44,7 @@ template <> struct std::formatter<Pak::FileEntry> {
                               "  flags: 0x{:02x},\n"
                               "  sizeOnDisk: {},\n"
                               "  uncompressedSize: {}\n"
-                              "}}\n",
+                              "}}",
                               name, offsetInFile1, offsetInFile2, archivePart,
                               flags, sizeOnDisk, uncompressedSize);
     }

@@ -30,7 +30,7 @@ template <> struct std::formatter<Pak::FileList> {
                               "FileList{{\n"
                               "  numFilesEntry: {},\n"
                               "  compressedSize: {}\n"
-                              "}}\n",
+                              "}}",
                               numFilesEntry, compressedSize);
     }
 };
