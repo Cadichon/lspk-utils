@@ -22,9 +22,17 @@ void tryPrintHeader(const std::filesystem::path &filePath) {
     }
     std::println("{}", filePath.string());
     std::println("{}", *header);
+    if (file.size() < (header->fileListOffset + sizeof(Pak::FileList))) {
+        return;
+    }
     const Pak::FileList *fileList =
         file.get<Pak::FileList>(header->fileListOffset);
     std::println("{}", *fileList);
+
+    if (file.size() < (header->fileListOffset + sizeof(Pak::FileList) +
+                       fileList->compressedSize)) {
+        return;
+    }
     std::vector<Pak::FileEntry> fileEntries;
 
     fileEntries.resize(fileList->numFilesEntry);
@@ -37,7 +45,7 @@ void tryPrintHeader(const std::filesystem::path &filePath) {
         reinterpret_cast<char *>(fileEntries.data()), fileList->compressedSize,
         sizeof(Pak::FileEntry) * fileList->numFilesEntry);
     if (ret != (sizeof(Pak::FileEntry) * fileList->numFilesEntry)) {
-        std::println("Not good");
+        return;
     }
     for (const auto &fileEntry : fileEntries) {
         std::println("{}", fileEntry);
