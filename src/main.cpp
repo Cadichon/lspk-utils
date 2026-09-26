@@ -52,6 +52,9 @@ void tryPrintHeader(const std::filesystem::path &filePath) {
     }
 }
 
+static_assert(std::endian::native == std::endian::little,
+              "This program only works on little-endian OS (for now)");
+
 int main(int argc, char **argv) {
     for (auto i = 0; i < argc; i += 1) {
         bool exists = std::filesystem::exists(argv[i]);
