@@ -15,7 +15,7 @@ class MemoryMappedFile {
     template <typename T>
         requires(alignof(T) == 1)
     const T *get(std::size_t offset) const {
-        if (offset > this->fileSize || offset + sizeof(T) <= this->fileSize) {
+        if (offset > this->fileSize || sizeof(T) > this->fileSize - offset) {
             throw std::out_of_range(
                 "Out of range access in MemoryMappedFile::get");
         }
