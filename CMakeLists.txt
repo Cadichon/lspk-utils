@@ -16,14 +16,13 @@ if (FETCH_DEPS)
     FetchContent_MakeAvailable(lz4)
     add_library(lz4::lz4 ALIAS lz4)
 
-    # args
-    set(ARGS_BUILD_EXAMPLE OFF CACHE BOOL "" FORCE)
-    set(ARGS_BUILD_UNITTESTS OFF CACHE BOOL "" FORCE)
-    FetchContent_Declare(args
-        GIT_REPOSITORY "https://github.com/taywee/args"
-        GIT_TAG "6.6.0"
+    # argparse
+    FetchContent_Declare(
+        argparse
+        GIT_REPOSITORY https://github.com/p-ranav/argparse.git
+        GIT_TAG "v3.2"
     )
-    FetchContent_MakeAvailable(args)
+    FetchContent_MakeAvailable(argparse)
 
 else()
     find_package(PkgConfig REQUIRED)
@@ -31,7 +30,7 @@ else()
     pkg_check_modules(LZ4 REQUIRED IMPORTED_TARGET liblz4)
     add_library(lz4::lz4 ALIAS PkgConfig::LZ4)
 
-    find_package(args CONFIG REQUIRED)
+    find_package(argparse CONFIG REQUIRED)
 endif()
 
 add_executable(lspk-utils)
@@ -66,7 +65,7 @@ target_include_directories(lspk-utils
 target_link_libraries(lspk-utils
     PRIVATE
         lz4::lz4
-        taywee::args
+        argparse::argparse
 )
 
 if(MINGW)
