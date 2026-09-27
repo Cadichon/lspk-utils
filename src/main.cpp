@@ -40,7 +40,7 @@ void tryPrintHeader(const std::filesystem::path &filePath) {
     // After FileList, there is a LZ4 compressed array of FileEntry of size
     // FileList::numFilesEntry
     int ret = LZ4_decompress_safe(
-        static_cast<const char *>(
+        reinterpret_cast<const char *>(
             file.getRaw(header->fileListOffset + sizeof(Pak::FileList))),
         reinterpret_cast<char *>(fileEntries.data()), fileList->compressedSize,
         sizeof(Pak::FileEntry) * fileList->numFilesEntry);
