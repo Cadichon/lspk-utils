@@ -51,12 +51,12 @@ target_sources(lspk-utils
 if (WIN32)
     target_sources(lspk-utils
         PRIVATE
-            src/memory_map/file_win.cpp
+            src/utils/mmaped_file_win.cpp
     )
 else()
     target_sources(lspk-utils
         PRIVATE
-            src/memory_map/file.cpp
+            src/utils/mmaped_file.cpp
     )
 endif()
 

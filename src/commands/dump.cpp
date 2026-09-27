@@ -4,10 +4,10 @@
 
 #include <lz4.h>
 
-#include "memory_map/file.hpp"
 #include "pak/file_entry.hpp"
 #include "pak/file_list.hpp"
 #include "pak/header.hpp"
+#include "utils/mmaped_file.hpp"
 
 bool dump(const std::filesystem::path &inputPak) {
     MemoryMappedFile file{inputPak};

@@ -4,7 +4,7 @@
 
 #include <windows.h>
 
-#include "memory_map/file.hpp"
+#include "mmaped_file.hpp"
 
 MemoryMappedFile::MemoryMappedFile(const std::filesystem::path &filePath) {
 
