@@ -17,15 +17,15 @@ target_sources(pak
 )
 
 if (WIN32)
-target_sources(pak
-    PRIVATE
-        src/memory_map/file_win.cpp
-)
+    target_sources(pak
+        PRIVATE
+            src/memory_map/file_win.cpp
+    )
 else()
-target_sources(pak
-    PRIVATE
-        src/memory_map/file.cpp
-)
+    target_sources(pak
+        PRIVATE
+            src/memory_map/file.cpp
+    )
 endif()
 
 target_include_directories(pak
