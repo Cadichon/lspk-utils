@@ -1,66 +1,75 @@
 #include <filesystem>
 #include <print>
-#include <vector>
 
-#include <lz4.h>
+#include <argparse/argparse.hpp>
 
-#include "memory_map/file.hpp"
-#include "pak/file_entry.hpp"
-#include "pak/file_list.hpp"
-#include "pak/header.hpp"
+#include "commands.hpp"
 
-void tryPrintHeader(const std::filesystem::path &filePath) {
-    MemoryMappedFile file{filePath};
+template <> struct std::formatter<argparse::ArgumentParser> {
+    constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
 
-    if (file.size() < sizeof(Pak::Header))
-        return;
+    auto format(const argparse::ArgumentParser &p,
+                std::format_context &ctx) const {
+        std::stringstream stream;
 
-    const Pak::Header *header = file.get<Pak::Header>(0);
+        stream << p;
 
-    if (!Pak::Header::isValid(*header)) {
-        return;
+        return std::format_to(ctx.out(), "{}", stream.str());
     }
-    std::println("{}", filePath.string());
-    std::println("{}", *header);
-    if (file.size() < (header->fileListOffset + sizeof(Pak::FileList))) {
-        return;
-    }
-    const Pak::FileList *fileList =
-        file.get<Pak::FileList>(header->fileListOffset);
-    std::println("{}", *fileList);
-
-    if (file.size() < (header->fileListOffset + sizeof(Pak::FileList) +
-                       fileList->compressedSize)) {
-        return;
-    }
-    std::vector<Pak::FileEntry> fileEntries;
-
-    fileEntries.resize(fileList->numFilesEntry);
-
-    // After FileList, there is a LZ4 compressed array of FileEntry of size
-    // FileList::numFilesEntry
-    int ret = LZ4_decompress_safe(
-        reinterpret_cast<const char *>(
-            file.getRaw(header->fileListOffset + sizeof(Pak::FileList))),
-        reinterpret_cast<char *>(fileEntries.data()), fileList->compressedSize,
-        sizeof(Pak::FileEntry) * fileList->numFilesEntry);
-    if (ret != (sizeof(Pak::FileEntry) * fileList->numFilesEntry)) {
-        return;
-    }
-    for (const auto &fileEntry : fileEntries) {
-        std::println("{}", fileEntry);
-    }
-}
+};
 
 static_assert(std::endian::native == std::endian::little,
               "This program only works on little-endian OS (for now)");
 
-int main(int argc, char **argv) {
-    for (auto i = 0; i < argc; i += 1) {
-        bool exists = std::filesystem::exists(argv[i]);
-        if (!exists)
-            continue;
+int main(int argc, const char *const *argv) {
+    argparse::ArgumentParser prog{argv[0]};
 
-        tryPrintHeader(argv[i]);
+    argparse::ArgumentParser dumpCmd{"dump"};
+    dumpCmd.add_argument("input").help("input .pak file");
+
+    argparse::ArgumentParser pakCmd{"pak"};
+    pakCmd.add_argument("input").help("input folder");
+    pakCmd.add_argument("output").help("output .pak file name");
+
+    argparse::ArgumentParser unpakCmd{"unpak"};
+    unpakCmd.add_argument("input").help("input .pak file");
+    unpakCmd.add_argument("output")
+        .help("output folder, default to \"./out\"")
+        .default_value("./out");
+
+    prog.add_subparser(pakCmd);
+    prog.add_subparser(unpakCmd);
+    prog.add_subparser(dumpCmd);
+
+    try {
+        prog.parse_args(argc, argv);
+    } catch (const std::exception &e) {
+        std::println(stderr, "{}", e.what());
+        std::print(stderr, "{}", prog);
+        return 1;
+    }
+
+    if (prog.is_subcommand_used("dump")) {
+        std::filesystem::path inputPak{
+            prog.at<argparse::ArgumentParser>("dump").get("input")};
+
+        return dump(inputPak) ? 0 : 1;
+    } else if (prog.is_subcommand_used("unpak")) {
+        std::filesystem::path inputPak{
+            prog.at<argparse::ArgumentParser>("unpak").get("input")};
+        std::filesystem::path outpurDir{
+            prog.at<argparse::ArgumentParser>("unpak").get("output")};
+
+        return unpak(inputPak, outpurDir) ? 0 : 1;
+    } else if (prog.is_subcommand_used("pak")) {
+        std::filesystem::path inputDir{
+            prog.at<argparse::ArgumentParser>("pak").get("input")};
+        std::filesystem::path outputPak{
+            prog.at<argparse::ArgumentParser>("pak").get("output")};
+
+        return pak(inputDir, outputPak) ? 0 : 1;
+    } else {
+        std::print("{}", prog);
+        return 0;
     }
 }
