@@ -43,6 +43,9 @@ target_compile_features(lspk-utils
 target_sources(lspk-utils
     PRIVATE
         src/main.cpp
+        src/commands/dump.cpp
+        src/commands/pak.cpp
+        src/commands/unpak.cpp
 )
 
 if (WIN32)
