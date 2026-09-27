@@ -1,0 +1,42 @@
+{
+    "version": 10,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 23,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "default",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build",
+            "warnings": {
+                "deprecated": false
+            }
+        },
+        {
+            "name": "default-fetch",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build-fetch",
+            "cacheVariables": {
+                "FETCH_DEPS": "ON"
+            },
+            "warnings": {
+                "deprecated": false
+            }
+        },
+        {
+            "name": "dev",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build-dev",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "FETCH_DEPS": "ON"
+            },
+            "warnings": {
+                "deprecated": false
+            }
+        }
+    ]
+}
